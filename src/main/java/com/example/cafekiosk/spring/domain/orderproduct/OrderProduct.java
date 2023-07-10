@@ -2,8 +2,8 @@ package com.example.cafekiosk.spring.domain.orderproduct;
 
 
 import com.example.cafekiosk.spring.domain.BaseEntity;
+import com.example.cafekiosk.spring.domain.order.Order;
 import com.example.cafekiosk.spring.domain.product.Product;
-import com.example.cafekiosk.unit.order.Order;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Getter;
