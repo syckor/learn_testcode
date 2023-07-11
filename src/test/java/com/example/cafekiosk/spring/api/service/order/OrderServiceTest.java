@@ -13,6 +13,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.test.context.ActiveProfiles;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -20,6 +21,7 @@ import java.util.List;
 import static com.example.cafekiosk.spring.domain.product.ProductSellingStatus.*;
 
 
+@ActiveProfiles("test")
 @SpringBootTest
 //@DataJpaTest
 class OrderServiceTest {
@@ -33,9 +35,14 @@ class OrderServiceTest {
     @Test
     void createOrder(){
         //given
+
+        LocalDateTime registeredDateTime = LocalDateTime.now();
+
         Product product1 = createProduct(ProductType.HANDMADE, "001", 1000);
-        Product product2 = createProduct(ProductType.HANDMADE, "002", 2000);
-        Product product3 = createProduct(ProductType.HANDMADE, "003", 3000);
+        Product product2 = createProduct(ProductType.HANDMADE, "002", 3000);
+        Product product3 = createProduct(ProductType.HANDMADE, "003", 5000);
+
+        productRepository.saveAll(List.of(product1, product2, product3));
 
         OrderCreateRequest request = OrderCreateRequest.builder()
                 .productNumbers(List.of("001", "002"))
@@ -43,20 +50,24 @@ class OrderServiceTest {
 
         //when
 
-        OrderResponse orderResponse = orderService.createOrder(request);
+        OrderResponse orderResponse = orderService.createOrder(request, registeredDateTime);
         //then
         assertThat(orderResponse.getId()).isNotNull();
         assertThat(orderResponse)
                 .extracting("registeredDateTime", "totalPrice")
-                .contains(LocalDateTime.now(), 4000);
+                .contains(registeredDateTime, 4000);
         assertThat(orderResponse.getProducts()).hasSize(2)
                 .extracting("productNumber", "price")
                 .containsExactlyInAnyOrder(
                   Tuple.tuple("001", 1000),
                   Tuple.tuple("002", 3000)
                 );
+    }
 
-
+    @DisplayName("중복되는 상품번호 리스트로 주문을 생성할 수 있다.")
+    @Test
+    void createOrderWithDuplicatedProductNumbers(){
+        
     }
 
     private Product createProduct(ProductType type, String productNumber, int price){
