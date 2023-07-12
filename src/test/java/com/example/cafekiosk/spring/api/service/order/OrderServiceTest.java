@@ -32,7 +32,6 @@ import static org.assertj.core.groups.Tuple.*;
 
 @ActiveProfiles("test")
 @SpringBootTest
-
 class OrderServiceTest {
 
     @Autowired
@@ -62,7 +61,6 @@ class OrderServiceTest {
     @Test
     void createOrderWithStock(){
         //given
-
         LocalDateTime registeredDateTime = LocalDateTime.now();
 
         Product product1 = createProduct(BOTTLE, "001", 1000);
@@ -72,7 +70,7 @@ class OrderServiceTest {
         productRepository.saveAll(List.of(product1, product2, product3));
 
         Stock stock1 = Stock.create("001", 2);
-        Stock stock2 = Stock.create("001", 2);
+        Stock stock2 = Stock.create("002", 2);
 
         stockRepository.saveAll(List.of(stock1, stock2));
 
@@ -81,8 +79,8 @@ class OrderServiceTest {
                 .build();
 
         //when
-
         OrderResponse orderResponse = orderService.createOrder(request, registeredDateTime);
+
         //then
         assertThat(orderResponse.getId()).isNotNull();
         assertThat(orderResponse)
@@ -98,6 +96,11 @@ class OrderServiceTest {
                 );
 
         List<Stock> stocks = stockRepository.findAll();
+
+        for(Stock stock : stocks){
+            System.out.println(stock.getId() + " " + stock.getQuantity() + " " + stock.getProductNumber());
+        }
+
         assertThat(stocks).hasSize(2)
                 .extracting("productNumber", "quantity")
                 .containsExactlyInAnyOrder(
