@@ -6,6 +6,8 @@ import com.example.cafekiosk.spring.domain.order.Order;
 import com.example.cafekiosk.spring.domain.order.OrderRepository;
 import com.example.cafekiosk.spring.domain.product.Product;
 import com.example.cafekiosk.spring.domain.product.ProductRepository;
+import com.example.cafekiosk.spring.domain.product.ProductType;
+import com.example.cafekiosk.spring.domain.stock.StockRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -20,10 +22,19 @@ public class OrderService {
 
     private final ProductRepository productRepository;
     private final OrderRepository orderRepository;
+    private final StockRepository stockRepository;
     public OrderResponse createOrder(OrderCreateRequest request, LocalDateTime registeredDateTime) {
         List<String> productNumbers = request.getProductNumbers();
-
         List<Product> products = findProductBy(productNumbers);
+
+        //재고 차감 체크가 필요한 상품들 filtering
+        List<String> stockProductNumbers = products.stream()
+                .filter(product -> ProductType.containsStockType(product.getType()))
+                .map(Product::getProductNumber).toList();
+        //재고 엔티티 조회
+        //상품별 counting
+        //재고 차감 시도
+
 
         Order order = Order.create(products, registeredDateTime);
         Order saveOrder = orderRepository.save(order);
